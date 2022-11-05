@@ -13,6 +13,8 @@ from scipy.signal import savgol_filter
 plt.close("all")
 data=np.genfromtxt('Cs-137_2.txt', skip_header = 5, skip_footer = 1, autostrip = True)
 noisedata = np.genfromtxt('Cs-137_norod.txt', skip_header = 5, skip_footer = 1, autostrip = True)
+peaks=[]
+error=[]
 
 #REMOVING BACKGORUND NOISE
 for i in range(1,6):
@@ -29,12 +31,16 @@ def _2gaussian(x, amp1,cen1,sigma1, amp2,cen2,sigma2):
     return amp1*(1/(sigma1*(np.sqrt(2*np.pi))))*(np.exp((-1.0/2.0)*(((x-cen1)/sigma1)**2))) + \
             amp2*(1/(sigma2*(np.sqrt(2*np.pi))))*(np.exp((-1.0/2.0)*(((x-cen2)/sigma2)**2)))
 
-
+def Compton(energy,x):
+    return(energy/(1+energy/(511)*(1-np.cos(x))))
 
 #plotting
 data[:,0] = np.linspace(0,510,511)
 bins = data[:,0]
-deg=[30,60,70,80,90]              
+deg=[30,60,70,80,90]
+
+for i in range(0,5):
+    deg[i-1] = deg[i-1]*np.pi/180             
 for i in range(1,6):
     #seperate figures
     plt.figure(i)
@@ -53,14 +59,24 @@ for i in range(1,6):
     pars_2 = popt_2gauss[3:6]
     gauss_peak_1 = _1gaussian(bins, *pars_1)
     gauss_peak_2 = _1gaussian(bins, *pars_2)
-    plt.plot(bins, _2gaussian(bins, *popt_2gauss),label=str(deg[1-i])+" deg")
+    plt.plot(Calibrate(bins), _2gaussian(bins, *popt_2gauss),label=str(deg[1-i])+" deg")
     
     
     #GRAPHICS
-    plt.plot(bins, data[:,i],label=str(deg[1-i])+" deg")
+    plt.plot(Calibrate(bins), data[:,i],label=str(deg[1-i])+" deg")
     plt.xlabel('Energy (KeV)')
     plt.ylabel('Counts')
     plt.legend()
     ax = plt.gca()
     # ax.set_ylim([0, 80])
+    peaks.append(Calibrate(pars_2[1]))
+    error.append(perr_2gauss[1])
+
+plt.figure(6)    
+plt.errorbar(deg,peaks, yerr = error, xerr = 5*np.pi/180,  color = 'blue', ls='none',label = 'Data', fmt='.')
+x=np.linspace(0,np.pi, 1000)
+plt.plot(x, Compton(661,x), label = 'Expected', color = 'orange')
+plt.legend()
+plt.xlabel('Radians')
+plt.ylabel('Energy(KeV)')
 

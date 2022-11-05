@@ -20,6 +20,7 @@ Co=np.loadtxt("Co_57cal.csv", delimiter = ',', encoding='utf-8-sig')
 expected = [59.6, 662, 122]
 peaks = []
 
+
 #x is energy
 #y is counts
 
@@ -59,7 +60,7 @@ gaus,gaus_cov = curve_fit(fit,x,Am,initial_guess,maxfev=5000)
 plt.plot(x,Am)
 y=fit(xloads,*gaus).tolist()
 plt.plot(xloads,y)
-peaks.append(xloads[y.index(max(y))])
+peaks.append(gaus[1])
 plt.show()
 
 
