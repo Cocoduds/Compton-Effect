@@ -13,13 +13,19 @@ from scipy.signal import savgol_filter
 plt.close("all")
 data=np.genfromtxt('Cs-137_2.txt', skip_header = 5, skip_footer = 1, autostrip = True)
 noisedata = np.genfromtxt('Cs-137_norod.txt', skip_header = 5, skip_footer = 1, autostrip = True)
+data120 = np.genfromtxt('Cs-137_120deg.txt', skip_header = 5, skip_footer = 1, autostrip = True)
+data45 = np.genfromtxt('Cs-137_45deg(andBKR).txt', skip_header = 5, skip_footer = 1, autostrip = True)
+data[:,6]= noisedata[:,1]
 peaks=[]
 error=[]
 
 #REMOVING BACKGORUND NOISE
 for i in range(1,6):
     data[:,i] = data[:,i]-noisedata[:,i+3]
-
+#NOISE DATA FROM 0 DEG IS BIGGER THAN DATA
+#data[:,6] = data [:,6]-noisedata[:,2]
+data120[:,1] = data120[:,1]-data120[:,2]
+data45[:,1] = data45[:,1]-data45[:,2]
 
 
 
@@ -53,7 +59,7 @@ for i in range(1,6):
     # plt.plot(bins, _1gaussian(bins, *popt_gauss),label=str(deg[1-i])+" deg")
     
     # TWO GAUSSIAN FITS
-    popt_2gauss, pcov_2gauss = curve_fit(_2gaussian, bins, data[:,i], p0=[30, 20, 10, 30,250, 10])
+    popt_2gauss, pcov_2gauss = curve_fit(_2gaussian, bins, data[:,i], p0=[30, 20, 10, 30, 250, 10])
     perr_2gauss = np.sqrt(np.diag(pcov_2gauss))
     pars_1 = popt_2gauss[0:3]
     pars_2 = popt_2gauss[3:6]
@@ -70,13 +76,85 @@ for i in range(1,6):
     ax = plt.gca()
     # ax.set_ylim([0, 80])
     peaks.append(Calibrate(pars_2[1]))
-    error.append(perr_2gauss[1])
+    error.append(Calibrate(perr_2gauss[1]))
 
-plt.figure(6)    
+
+#0           THIS IS POINTLESS BECAUSE YOU CANT SHEILD
+deg.append(0)
+plt.figure(6)
+popt_2gauss, pcov_2gauss = curve_fit(_2gaussian, bins, data[:,6], p0=[500, 250, 250, 2500, 661, 50])
+perr_2gauss = np.sqrt(np.diag(pcov_2gauss))
+pars_1 = popt_2gauss[0:3]
+pars_2 = popt_2gauss[3:6]
+gauss_peak_1 = _1gaussian(bins, *pars_1)
+gauss_peak_2 = _1gaussian(bins, *pars_2)
+plt.plot(Calibrate(bins), _2gaussian(bins, *popt_2gauss),label=str(deg[1-i])+" deg")
+#GRAPHICS
+plt.plot(Calibrate(bins), data[:,6],label="0 deg")
+plt.xlabel('Energy (KeV)')
+plt.ylabel('Counts')
+plt.legend()
+ax = plt.gca()
+# ax.set_ylim([0, 80])
+peaks.append(Calibrate(pars_1[1]))
+error.append(Calibrate(perr_2gauss[1]))
+
+
+#120 Degrees
+deg.append(120*np.pi/180)
+plt.figure(7)
+popt_2gauss, pcov_2gauss = curve_fit(_2gaussian, bins, data120[:,1], p0=[500, 250, 250, 2500, 661, 50])
+perr_2gauss = np.sqrt(np.diag(pcov_2gauss))
+pars_1 = popt_2gauss[0:3]
+pars_2 = popt_2gauss[3:6]
+gauss_peak_1 = _1gaussian(bins, *pars_1)
+gauss_peak_2 = _1gaussian(bins, *pars_2)
+plt.plot(Calibrate(bins), _2gaussian(bins, *popt_2gauss),label="120 deg")
+#GRAPHICS
+plt.plot(Calibrate(bins), data120[:,1],label="120 deg")
+plt.xlabel('Energy (KeV)')
+plt.ylabel('Counts')
+plt.legend()
+ax = plt.gca()
+# ax.set_ylim([0, 80])
+peaks.append(Calibrate(pars_1[1]))
+error.append(Calibrate(perr_2gauss[1]))
+
+
+#45 Degrees
+deg.append(45*np.pi/180)
+plt.figure(8)
+popt_2gauss, pcov_2gauss = curve_fit(_2gaussian, bins, data45[:,1], p0=[30, 20, 10, 30, 250, 10])
+perr_2gauss = np.sqrt(np.diag(pcov_2gauss))
+pars_1 = popt_2gauss[0:3]
+pars_2 = popt_2gauss[3:6]
+gauss_peak_1 = _1gaussian(bins, *pars_1)
+gauss_peak_2 = _1gaussian(bins, *pars_2)
+plt.plot(Calibrate(bins), _2gaussian(bins, *popt_2gauss),label="45 deg")
+#GRAPHICS
+plt.plot(Calibrate(bins), data45[:,1],label="45 deg")
+plt.xlabel('Energy (KeV)')
+plt.ylabel('Counts')
+plt.legend()
+ax = plt.gca()
+# ax.set_ylim([0, 80])
+peaks.append(Calibrate(pars_2[1]))
+error.append(Calibrate(perr_2gauss[1]))
+
+
+plt.figure(9)    
 plt.errorbar(deg,peaks, yerr = error, xerr = 5*np.pi/180,  color = 'blue', ls='none',label = 'Data', fmt='.')
 x=np.linspace(0,np.pi, 1000)
 plt.plot(x, Compton(661,x), label = 'Expected', color = 'orange')
 plt.legend()
 plt.xlabel('Radians')
 plt.ylabel('Energy(KeV)')
+
+def Deg():
+    return(deg)
+    
+def WavelengthRatio(n):
+    return(peaks[i]/661.7)
+
+
 
