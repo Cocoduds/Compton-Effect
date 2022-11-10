@@ -59,7 +59,8 @@ for i in range(1,6):
     # plt.plot(bins, _1gaussian(bins, *popt_gauss),label=str(deg[1-i])+" deg")
     
     # TWO GAUSSIAN FITS
-    popt_2gauss, pcov_2gauss = curve_fit(_2gaussian, bins, data[:,i], p0=[30, 20, 10, 30, 250, 10])
+    err_count=np.sqrt(np.abs(data[:,i])+1)
+    popt_2gauss, pcov_2gauss = curve_fit(_2gaussian, bins, data[:,i], p0=[30, 20, 10, 30, 250, 10], sigma=err_count, absolute_sigma=True)
     perr_2gauss = np.sqrt(np.diag(pcov_2gauss))
     pars_1 = popt_2gauss[0:3]
     pars_2 = popt_2gauss[3:6]
@@ -76,19 +77,25 @@ for i in range(1,6):
     ax = plt.gca()
     # ax.set_ylim([0, 80])
     peaks.append(Calibrate(pars_2[1]))
-    error.append(Calibrate(perr_2gauss[1]))
+    error.append(Calibrate(np.sqrt(perr_2gauss[4])))
 
 
 #0           THIS IS POINTLESS BECAUSE YOU CANT SHEILD
 deg.append(0)
 plt.figure(6)
-popt_2gauss, pcov_2gauss = curve_fit(_2gaussian, bins, data[:,6], p0=[500, 250, 250, 2500, 661, 50])
+err_count=[]
+for i in data[:,6]:
+    if i<20:
+        err_count.append(np.sqrt(np.abs(i)+1))
+    else:
+        err_count.append(np.sqrt(np.abs(i)))
+popt_2gauss, pcov_2gauss = curve_fit(_2gaussian, bins, data[:,6], p0=[500, 250, 250, 2500, 661, 50], sigma=err_count, absolute_sigma=True, maxfev = 500000)
 perr_2gauss = np.sqrt(np.diag(pcov_2gauss))
 pars_1 = popt_2gauss[0:3]
 pars_2 = popt_2gauss[3:6]
 gauss_peak_1 = _1gaussian(bins, *pars_1)
 gauss_peak_2 = _1gaussian(bins, *pars_2)
-plt.plot(Calibrate(bins), _2gaussian(bins, *popt_2gauss),label=str(deg[1-i])+" deg")
+plt.plot(Calibrate(bins), _2gaussian(bins, *popt_2gauss),label="0 deg")
 #GRAPHICS
 plt.plot(Calibrate(bins), data[:,6],label="0 deg")
 plt.xlabel('Energy (KeV)')
@@ -97,13 +104,14 @@ plt.legend()
 ax = plt.gca()
 # ax.set_ylim([0, 80])
 peaks.append(Calibrate(pars_1[1]))
-error.append(Calibrate(perr_2gauss[1]))
+error.append(Calibrate(np.sqrt(perr_2gauss[4])))
 
 
 #120 Degrees
 deg.append(120*np.pi/180)
 plt.figure(7)
-popt_2gauss, pcov_2gauss = curve_fit(_2gaussian, bins, data120[:,1], p0=[500, 250, 250, 2500, 661, 50])
+err_count=np.sqrt(np.abs(data120[:,1])+1)
+popt_2gauss, pcov_2gauss = curve_fit(_2gaussian, bins, data120[:,1], p0=[500, 250, 250, 2500, 661, 50], sigma=err_count, absolute_sigma=True)
 perr_2gauss = np.sqrt(np.diag(pcov_2gauss))
 pars_1 = popt_2gauss[0:3]
 pars_2 = popt_2gauss[3:6]
@@ -118,13 +126,14 @@ plt.legend()
 ax = plt.gca()
 # ax.set_ylim([0, 80])
 peaks.append(Calibrate(pars_1[1]))
-error.append(Calibrate(perr_2gauss[1]))
+error.append(Calibrate(np.sqrt(perr_2gauss[1])))
 
 
 #45 Degrees
 deg.append(45*np.pi/180)
 plt.figure(8)
-popt_2gauss, pcov_2gauss = curve_fit(_2gaussian, bins, data45[:,1], p0=[30, 20, 10, 30, 250, 10])
+err_count=np.sqrt(np.abs(data45[:,1])+1)
+popt_2gauss, pcov_2gauss = curve_fit(_2gaussian, bins, data45[:,1], p0=[30, 20, 10, 30, 250, 10], sigma=err_count, absolute_sigma=True)
 perr_2gauss = np.sqrt(np.diag(pcov_2gauss))
 pars_1 = popt_2gauss[0:3]
 pars_2 = popt_2gauss[3:6]
@@ -139,7 +148,7 @@ plt.legend()
 ax = plt.gca()
 # ax.set_ylim([0, 80])
 peaks.append(Calibrate(pars_2[1]))
-error.append(Calibrate(perr_2gauss[1]))
+error.append(Calibrate(np.sqrt(perr_2gauss[4])))
 
 
 plt.figure(9)    
@@ -155,6 +164,3 @@ def Deg():
     
 def WavelengthRatio(n):
     return(peaks[i]/661.7)
-
-
-
