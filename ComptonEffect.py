@@ -9,6 +9,7 @@ from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 from Calibration import p1 as Calibrate
 from scipy.signal import savgol_filter
+from Smoother import Smooth
 
 plt.close("all")
 data=np.genfromtxt('Cs-137_2.txt', skip_header = 5, skip_footer = 1, autostrip = True)
@@ -163,4 +164,4 @@ def Deg():
     return(deg)
     
 def WavelengthRatio(n):
-    return(peaks[i]/661.7)
+    return(peaks[n]/661.7)
