@@ -16,7 +16,7 @@ import ComptonEffect
 
 
 plt.close("all")
-data=np.loadtxt("Al-CS-simplified.csv", delimiter = ',', encoding='utf-8-sig', skiprows= 5, max_rows = 511)
+data=np.genfromtxt('Cs-137_PTFE.txt', skip_header = 5, skip_footer = 1, autostrip = True)
 fluxData = np.genfromtxt('Cs-137_Flux.txt', skip_header = 5, skip_footer = 1, autostrip = True)
 backgroundFlux = fluxData[:,1]-fluxData[:,2]
 peaks=[]
@@ -62,19 +62,17 @@ def data_fix(Data):
         data.append(Data[0][k])
     return data
 
-def Omega(angle):
-    return(0.01845/(2*np.pi*0.1*np.sin(angle)))
-
 #plotting
+data[:,0] = np.linspace(0,510,511)
 bins = data[:,0]
-deg=[30,60,70,80,90,0]
+deg=[30,60,90,120,0]
 chi2=[]
 
-for i in range(1,6):
+for i in range(1,5):
     deg[i-1] = deg[i-1]*np.pi/180            
-for i in range(1,6):
+for i in range(1,5):
     #seperate figures
-    #plt.figure(i)
+    plt.figure(i)
     # noise reduction
     data_smoothed = savgol_filter(data[:,i], 51, 2)
     currentData = data[:,2*i-1]-data[:,2*i]
@@ -91,11 +89,11 @@ for i in range(1,6):
     pars_2 = popt_2gauss[3:6]
     gauss_peak_1 = _1gaussian(bins, *pars_1)
     gauss_peak_2 = _1gaussian(bins, *pars_2)
-    # plt.plot(Calibrate(bins), _2gaussian(bins, *popt_2gauss),label=str(deg[i-2])+" deg")
+    plt.plot(Calibrate(bins), _2gaussian(bins, *popt_2gauss),label=str(deg[i-2])+" deg")
    
     
     #GRAPHICS
-    # plt.plot(Calibrate(bins), currentData,label=str(deg[i-1])+" deg")
+    plt.plot(Calibrate(bins), currentData,label=str(deg[i-1])+" deg")
     plt.xlabel('Energy (KeV)')
     plt.ylabel('Counts')
     plt.legend()
@@ -126,7 +124,7 @@ for i in range(1,6):
 #seperate figures
 plt.figure(7)
 # noise reduction
-currentData = data[:,11]-data[:,10]
+currentData = backgroundFlux
    
 # SINGLE GAUSSIAN FIT
 popt_gauss, pcov_gauss = curve_fit(_1gaussian, bins, currentData, p0=[6000, 400, 50])
@@ -164,7 +162,7 @@ print(fluxin)
 #PLOTTING THE PEAKS
 
 plt.figure(9)   
-plt.errorbar(deg,peaks, yerr = error, xerr = 5*np.pi/180,  color = 'blue', ls='none',label = 'Data', fmt='.')
+plt.errorbar([0,30*np.pi/180,60*np.pi/180,90*np.pi/180,120*np.pi/180],peaks, yerr = error, xerr = 5*np.pi/180,  color = 'blue', ls='none',label = 'Data', fmt='.')
 x=np.linspace(0,np.pi, 1000)
 plt.plot(x, Compton(661,x), label = 'Expected', color = 'orange')
 plt.legend()
@@ -174,19 +172,17 @@ plt.ylabel('Energy(KeV)')
 
 #%%
 #PLOTTING THE FLUX UNDER GAUSSIAN
-xaxis = [30,60,70,80,90]
+xaxis = [30,60,90,120]
 x=[]
 for i in xaxis:
     x.append(i*np.pi/180)
 plt.figure(10)
-plt.scatter(x, 1/(18e28*Omega(x)*thickness)*(fluxlist/(fluxin)), label = "under gaussian")
+plt.scatter(x, 1/(18e28*0.0267*thickness)*(fluxlist/fluxin), label = "under gaussian")
 
 #%%
 fluxin = np.sum(currentData)
-y=1/(18e28*Omega(x)*thickness)*(totalcounts/(fluxin))
-print(y)
 print(fluxin)
-plt.scatter(x,y , label = "all data")
+plt.scatter(x, 1/(18e28*0.0267*thickness)*(totalcounts/fluxin), label = "all data")
 plt.legend()
 
 
@@ -212,7 +208,7 @@ plt.xlabel('Angle (Radians)')
 plt.ylabel('Differential Cross Section')
 plt.legend()
 ax = plt.gca()
-ax.set_ylim([-0.1*10e-59, 0.8e-28])
+ax.set_ylim([-0.1*10e-59, 1e-28])
 plt.show()
 #%%
 fig, (ax1,ax2,ax3,ax4,ax5,ax6) = plt.subplots(6, sharex=True)

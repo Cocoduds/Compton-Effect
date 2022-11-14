@@ -19,7 +19,7 @@ electronRadius = 7.94*10**(-30)
 bins = np.linspace(0,510,511)
 
 def DFC(eR, wavelengthRatio, angle):
-    return 0.5*eR**2*wavelengthRatio**2*(wavelengthRatio+(1/wavelengthRatio)-2*(np.sin(angle))**2)
+    return 0.5*eR*wavelengthRatio**2*(wavelengthRatio+(1/wavelengthRatio)-2*(np.sin(angle))**2)
 
 angles = ComptonEffect.Deg()
 crossSections = []
@@ -79,6 +79,6 @@ plt.xlabel('Angle (Radians)')
 plt.ylabel('Differential Cross Section')
 plt.legend()
 ax = plt.gca()
-ax.set_ylim([-0.1*10e-59, 0.5*10e-59])
+ax.set_ylim([-0.1*10e-59, 0.5*10e-30])
 plt.show()
 
