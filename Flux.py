@@ -64,6 +64,8 @@ def data_fix(Data):
 
 def Omega(angle):
     return(0.01845/(2*np.pi*0.1*np.sin(angle)))
+def Effeciency(angle):
+    return 
 
 #plotting
 bins = data[:,0]
@@ -179,11 +181,11 @@ x=[]
 for i in xaxis:
     x.append(i*np.pi/180)
 plt.figure(10)
-plt.scatter(x, 1/(18e28*Omega(x)*thickness)*(fluxlist/(fluxin)), label = "under gaussian")
+plt.scatter(x, 1/(78e28*np.pi*(0.01843/2)**2/(0.1**2)*0.02013)*(fluxlist/(fluxin)*0.8), label = "under gaussian")
 
 #%%
 fluxin = np.sum(currentData)
-y=1/(18e28*Omega(x)*thickness)*(totalcounts/(fluxin))
+y=1/(78e28*np.pi*(0.01843/2)**2/(0.1**2)*0.02013)*(totalcounts/(fluxin)*0.8)
 print(y)
 print(fluxin)
 plt.scatter(x,y , label = "all data")
@@ -207,12 +209,12 @@ for i in range(0,8):
 
 
 plt.figure(10)
-plt.scatter(angles, crossSections, color = 'orange', label = 'unpolarized')
+plt.scatter(angles, crossSections, color = 'orange', label = 'Klein-Nishina')
 plt.xlabel('Angle (Radians)')
 plt.ylabel('Differential Cross Section')
 plt.legend()
 ax = plt.gca()
-ax.set_ylim([-0.1*10e-59, 0.8e-28])
+ax.set_ylim([-0.1*10e-59, 8e-29])
 plt.show()
 #%%
 fig, (ax1,ax2,ax3,ax4,ax5,ax6) = plt.subplots(6, sharex=True)

@@ -23,7 +23,7 @@ peaks=[]
 error=[]
 fluxlist=[]
 totalcounts = []
-thickness = 1/2*np.pi*0.02013/2
+thickness = 0.0285
 
 
  
@@ -177,12 +177,12 @@ x=[]
 for i in xaxis:
     x.append(i*np.pi/180)
 plt.figure(10)
-plt.scatter(x, 1/(18e28*0.0267*thickness)*(fluxlist/fluxin), label = "under gaussian")
+plt.scatter(x, 1/(6.35e29*0.0267*thickness)*(fluxlist/fluxin), label = "under gaussian")
 
 #%%
 fluxin = np.sum(currentData)
 print(fluxin)
-plt.scatter(x, 1/(18e28*0.0267*thickness)*(totalcounts/fluxin), label = "all data")
+plt.scatter(x, 1/(6.35e29*0.0267*thickness)*(totalcounts/fluxin), label = "all data")
 plt.legend()
 
 
@@ -208,7 +208,7 @@ plt.xlabel('Angle (Radians)')
 plt.ylabel('Differential Cross Section')
 plt.legend()
 ax = plt.gca()
-ax.set_ylim([-0.1*10e-59, 1e-28])
+ax.set_ylim([-0.1*10e-59, 0.4e-28])
 plt.show()
 #%%
 fig, (ax1,ax2,ax3,ax4,ax5,ax6) = plt.subplots(6, sharex=True)
